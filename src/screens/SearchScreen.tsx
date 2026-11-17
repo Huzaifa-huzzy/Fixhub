@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   ActivityIndicator,
@@ -9,6 +9,7 @@ import {
   Modal,
   Platform,
   Pressable,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -103,6 +104,9 @@ export function SearchScreen({
   const [reviewChatBusy, setReviewChatBusy] = useState(false);
   const [loading, setLoading] = useState(!demoMode && Boolean(supabase));
   const [error, setError] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+  const [refreshError, setRefreshError] = useState('');
+  const refreshingRef = useRef(false);
 
   const loadProviderReviews = useCallback(async (profileId: string, isActive: () => boolean = () => true) => {
     if (!supabase) return;
@@ -221,46 +225,25 @@ export function SearchScreen({
     return () => { active = false; };
   }, [demoMode, selected]);
 
-  useEffect(() => {
-    if (demoMode || !supabase) return;
-    let active = true;
-    async function loadProviders() {
-      setLoading(true);
-      setError('');
-      const { data, error: providerError } = await supabase!
-        .from('provider_profiles')
-        .select('id,profile_id,category,bio,experience_years,is_active,availability_status,verification_status,lat,lng,provider_services(task_name,price,is_starting_from,is_negotiable)');
-      if (providerError) {
-        if (active) {
-          setError(providerError.message);
-          setLoading(false);
-        }
-        return;
-      }
+  const loadProviders = useCallback(async (isActive: () => boolean = () => true) => {
+    const client = supabase;
+    if (!client) return null;
+    const { data, error: providerError } = await client
+      .from('provider_profiles')
+      .select('id,profile_id,category,bio,experience_years,is_active,availability_status,verification_status,lat,lng,provider_services(task_name,price,is_starting_from,is_negotiable)');
+    if (providerError) return providerError.message;
 
-      const providerRows = data ?? [];
-      const ids = providerRows.map((row) => row.profile_id);
-      const { data: profileRows, error: profileError } = ids.length
-        ? await supabase!.rpc('get_public_provider_profiles', { target_profile_ids: ids })
-        : { data: [], error: null };
-      if (profileError) {
-        if (active) {
-          setError(profileError.message);
-          setLoading(false);
-        }
-        return;
-      }
-      const { data: providerReviewRows, error: providerReviewError } = ids.length
-        ? await supabase!.from('reviews').select('to_profile_id,rating').in('to_profile_id', ids)
-        : { data: [], error: null };
-      if (providerReviewError) {
-        if (active) {
-          setError(providerReviewError.message);
-          setLoading(false);
-        }
-        return;
-      }
-      const providerRatings = aggregateRatings(providerReviewRows ?? []);
+    const providerRows = data ?? [];
+    const ids = providerRows.map((row) => row.profile_id);
+    const { data: profileRows, error: profileError } = ids.length
+      ? await client.rpc('get_public_provider_profiles', { target_profile_ids: ids })
+      : { data: [], error: null };
+    if (profileError) return profileError.message;
+    const { data: providerReviewRows, error: providerReviewError } = ids.length
+      ? await client.from('reviews').select('to_profile_id,rating').in('to_profile_id', ids)
+      : { data: [], error: null };
+    if (providerReviewError) return providerReviewError.message;
+    const providerRatings = aggregateRatings(providerReviewRows ?? []);
       const profileById = new Map<string, PublicProviderProfile>(
         (profileRows ?? []).map((row: PublicProviderProfile) => [row.id, row]),
       );
@@ -295,14 +278,39 @@ export function SearchScreen({
           })),
         };
       });
-      if (active) {
-        setProviders(nextProviders);
-        setLoading(false);
-      }
+    if (isActive()) setProviders(nextProviders);
+    return null;
+  }, []);
+
+  useEffect(() => {
+    if (demoMode || !supabase) return;
+    let active = true;
+    async function loadInitialProviders() {
+      setLoading(true);
+      setError('');
+      const message = await loadProviders(() => active);
+      if (!active) return;
+      if (message) setError(message);
+      setLoading(false);
     }
-    void loadProviders();
+    void loadInitialProviders();
     return () => { active = false; };
-  }, [demoMode]);
+  }, [demoMode, loadProviders]);
+
+  const handleRefreshProviders = useCallback(async () => {
+    if (demoMode || !supabase) return;
+    if (refreshingRef.current) return;
+    refreshingRef.current = true;
+    setRefreshing(true);
+    setRefreshError('');
+    try {
+      const message = await loadProviders();
+      if (message) setRefreshError(message);
+    } finally {
+      setRefreshing(false);
+      refreshingRef.current = false;
+    }
+  }, [demoMode, loadProviders]);
 
   const visibleProviders = useMemo(() => providers.filter((provider) => {
     const matchesCategory = category === 'All' || provider.category.toLowerCase() === category.toLowerCase();
@@ -474,6 +482,14 @@ export function SearchScreen({
         contentContainerStyle={[styles.content, isWideScreen && styles.contentWide]}
         keyboardDismissMode="on-drag"
         keyboardShouldPersistTaps="handled"
+        refreshControl={(
+          <RefreshControl
+            colors={[colors.green]}
+            onRefresh={() => void handleRefreshProviders()}
+            refreshing={refreshing}
+            tintColor={colors.green}
+          />
+        )}
       >
         <View style={[styles.header, isWideScreen && styles.headerWide]}>
           <View>
@@ -559,6 +575,11 @@ export function SearchScreen({
           </View>
         </View>
         {locationError ? <Text accessibilityRole="alert" style={styles.error}>{locationError}</Text> : null}
+        {refreshError ? (
+          <Text accessibilityRole="alert" style={styles.error}>
+            {t('Could not refresh providers.')} {refreshError}
+          </Text>
+        ) : null}
 
         <View style={styles.sectionHeading}>
           <View>

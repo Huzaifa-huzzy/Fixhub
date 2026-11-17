@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -40,9 +40,11 @@ export default function ChatInboxScreen() {
   const { language, isRTL, t } = useLanguage();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
+  const refreshingRef = useRef(false);
 
-  const loadConversations = useCallback(async () => {
+  const loadConversations = useCallback(async (background = false) => {
     if (!profile || !supabase) {
       setConversations([]);
       setError('');
@@ -50,7 +52,7 @@ export default function ChatInboxScreen() {
       return;
     }
 
-    setLoading(true);
+    if (!background) setLoading(true);
     const { data, error: loadError } = await supabase.rpc('list_my_chats');
     if (loadError) {
       setError(loadError.message);
@@ -58,8 +60,20 @@ export default function ChatInboxScreen() {
       setError('');
       setConversations((data ?? []) as Conversation[]);
     }
-    setLoading(false);
+    if (!background) setLoading(false);
   }, [profile]);
+
+  const handleRefresh = useCallback(async () => {
+    if (refreshingRef.current) return;
+    refreshingRef.current = true;
+    setRefreshing(true);
+    try {
+      await loadConversations(true);
+    } finally {
+      setRefreshing(false);
+      refreshingRef.current = false;
+    }
+  }, [loadConversations]);
 
   useFocusEffect(useCallback(() => {
     void loadConversations();
@@ -109,12 +123,12 @@ export default function ChatInboxScreen() {
         <Text style={[styles.title, isRTL && styles.rtlText]}>{t('Chats')}</Text>
         <Text style={[styles.subtitle, isRTL && styles.rtlText]}>{t('Your conversations')}</Text>
       </ScreenHeading>
-      {error ? <Text accessibilityRole="alert" style={styles.error}>{error}</Text> : null}
+      {error ? <Text accessibilityRole="alert" style={styles.error}>{t('Could not load chats.')} {error}</Text> : null}
       <FlatList
         contentContainerStyle={conversations.length === 0 ? styles.emptyList : styles.list}
         data={conversations}
         keyExtractor={(item) => item.chat_id}
-        refreshControl={<RefreshControl onRefresh={() => void loadConversations()} refreshing={loading} tintColor={colors.green} />}
+        refreshControl={<RefreshControl colors={[colors.green]} onRefresh={() => void handleRefresh()} refreshing={refreshing} tintColor={colors.green} />}
         renderItem={renderConversation}
         ListEmptyComponent={() => {
           if (loading) return <ActivityIndicator color={colors.green} style={styles.loader} />;

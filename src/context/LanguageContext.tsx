@@ -516,6 +516,8 @@ const urduTranslations: Record<string, string> = {
   Painter: 'رنگ کرنے کا کام',
   'AC Repair': 'اے سی کا کام',
   Chat: 'چیٹ کریں',
+  'Could not refresh providers.': 'تازہ فہرست حاصل نہیں ہو سکی۔',
+  'Could not load chats.': 'چیٹس حاصل نہیں ہو سکیں۔',
   'Connect an account to contact this provider.': 'اس کام کرنے والے سے رابطے کے لیے اکاؤنٹ میں جائیں۔',
   'Unable to get your current location.': 'آپ کا موجودہ مقام معلوم نہیں ہو سکا۔',
 };
