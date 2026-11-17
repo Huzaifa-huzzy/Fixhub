@@ -15,7 +15,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { filterDecimalInput, filterIntegerInput, filterTextInput, isValidDecimal, isValidEmail, isValidPakistanPhone, isValidText, toPakistanInternationalPhone, toPakistanLocalPhone } from '../lib/inputValidation';
 import type { SavedAccount } from '../lib/savedAccounts';
 import { supabase } from '../lib/supabase';
-import { getLayoutDirectionStyle } from '../lib/layoutDirection';
+import { getPinnedLtrStyle } from '../lib/layoutDirection';
 import { colors, radius } from '../theme';
 import type { Profile, UserRole } from '../types';
 
@@ -826,14 +826,14 @@ export function ProfileScreen({
   return (
     <View style={styles.screen}>
       <ScrollView
-        style={[styles.screen, getLayoutDirectionStyle(isRTL)]}
-        contentContainerStyle={[styles.content, getLayoutDirectionStyle(isRTL)]}
+        style={[styles.screen, getPinnedLtrStyle()]}
+        contentContainerStyle={[styles.content, getPinnedLtrStyle()]}
         keyboardDismissMode="on-drag"
         keyboardShouldPersistTaps="handled"
       >
       <View style={styles.header}>
         <Text style={[styles.eyebrow, isRTL && styles.rtlText]}>{t('YOUR ACCOUNT')}</Text>
-        <View style={[styles.headingRow, getLayoutDirectionStyle(isRTL)]}>
+        <View style={[styles.headingRow, getPinnedLtrStyle()]}>
           <Text style={[styles.title, isRTL && styles.rtlText]}>{t('Profile')}</Text>
           <Pressable
             accessibilityLabel={t('More Details')}
@@ -849,7 +849,7 @@ export function ProfileScreen({
           </Pressable>
         </View>
       </View>
-      <View style={[styles.identity, getLayoutDirectionStyle(isRTL)]}>
+      <View style={[styles.identity, getPinnedLtrStyle()]}>
         <View style={styles.avatar}>
           {selectedAvatar || avatarUrl
             ? <Image source={{ uri: selectedAvatar?.uri ?? avatarUrl ?? undefined }} style={styles.avatarImage} />
@@ -857,10 +857,10 @@ export function ProfileScreen({
         </View>
         <View style={styles.identityCopy}>
           <View style={styles.nameBadgeRow}>
-            <Text style={[styles.name, isRTL && styles.rtlText]}>{profileName || 'Fixhub user'}</Text>
+            <Text style={styles.name}>{profileName || 'Fixhub user'}</Text>
             {role === 'provider' && provider?.verification_status === 'verified' ? <VerifiedBadge /> : null}
           </View>
-          <Text style={[styles.role, isRTL && styles.rtlText]}>{t(roleLabels[role])}</Text>
+          <Text style={styles.role}>{t(roleLabels[role])}</Text>
           {!demoMode ? (
             <Pressable
               accessibilityLabel={t('Edit Profile')}
@@ -881,7 +881,7 @@ export function ProfileScreen({
         </View>
       </View>
       {editingProfile ? (
-        <View style={[styles.profileEditPanel, getLayoutDirectionStyle(isRTL)]}>
+        <View style={[styles.profileEditPanel, getPinnedLtrStyle()]}>
           <TextInput
             accessibilityLabel={t('Your name')}
             autoCapitalize="words"
@@ -908,7 +908,7 @@ export function ProfileScreen({
             </Text>
           </Pressable>
           {selectedAvatar ? <Text style={styles.helper}>{t('A new profile photo is selected.')}</Text> : null}
-          <View style={[styles.profileEditActions, getLayoutDirectionStyle(isRTL)]}>
+          <View style={[styles.profileEditActions, getPinnedLtrStyle()]}>
             <Pressable
               accessibilityRole="button"
               disabled={busy || !supabase}
@@ -938,7 +938,7 @@ export function ProfileScreen({
 
       {demoMode ? (
         <View
-          style={[styles.panel, getLayoutDirectionStyle(isRTL)]}
+          style={[styles.panel, getPinnedLtrStyle()]}
         >
           <Text style={styles.panelTitle}>{t('Preview another role')}</Text>
           <Text style={styles.helper}>{t('Demo only. Connect Supabase to create a real account profile.')}</Text>
@@ -955,7 +955,7 @@ export function ProfileScreen({
       ) : null}
 
       {!demoMode && onAddAccount && onSwitchAccount ? (
-        <View style={[styles.panel, getLayoutDirectionStyle(isRTL)]}>
+        <View style={[styles.panel, getPinnedLtrStyle()]}>
           <Text style={styles.panelTitle}>{t('Saved accounts')}</Text>
           <Text style={styles.helper}>{t('Switch accounts without signing in again, or add another Google account.')}</Text>
           {accountsLoading ? <ActivityIndicator color={colors.green} style={{ marginVertical: 12 }} /> : null}
@@ -1001,7 +1001,7 @@ export function ProfileScreen({
       ) : null}
 
       {!demoMode && usernameAccount ? (
-        <View style={[styles.panel, getLayoutDirectionStyle(isRTL)]}>
+        <View style={[styles.panel, getPinnedLtrStyle()]}>
           <Text style={styles.panelTitle}>{t('Account recovery email')}</Text>
           <Text style={styles.helper}>
             {authEmail.endsWith('@accounts.serviceconnect.invalid')
@@ -1043,7 +1043,7 @@ export function ProfileScreen({
 
       {loading ? <ActivityIndicator color={colors.green} style={{ marginVertical: 20 }} /> : null}
       {role === 'provider' ? (
-        <View style={[styles.panel, getLayoutDirectionStyle(isRTL)]}>
+        <View style={[styles.panel, getPinnedLtrStyle()]}>
           <Text style={styles.panelTitle}>{t('Provider profile')}</Text>
           {!provider ? (
             <>
@@ -1075,7 +1075,7 @@ export function ProfileScreen({
             </>
           ) : (
             <>
-              <View style={[styles.providerCategoryRow, isRTL && styles.providerCategoryRowRtl]}>
+              <View style={styles.providerCategoryRow}>
                 <Text style={[styles.categoryText, styles.providerCategoryName, isRTL && styles.rtlText]}>{t(provider.category)}</Text>
                 {!editingProviderCategory ? (
                   <Pressable
@@ -1370,7 +1370,7 @@ export function ProfileScreen({
       {role === 'admin' && !demoMode ? <AdminVerificationPanel /> : null}
 
       {role === 'business_owner' ? (
-        <View style={[styles.panel, getLayoutDirectionStyle(isRTL)]}>
+        <View style={[styles.panel, getPinnedLtrStyle()]}>
           <Text style={styles.panelTitle}>{t('Business listing')}</Text>
           {business ? (
             <>
@@ -1405,7 +1405,7 @@ export function ProfileScreen({
         transparent
         visible={profileMenuMounted}
       >
-        <View style={[styles.drawerOverlay, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+        <View style={styles.drawerOverlay}>
           <Animated.View
             pointerEvents="none"
             style={[styles.drawerScrim, { opacity: drawerProgress }]}
@@ -1423,31 +1423,31 @@ export function ProfileScreen({
                 transform: [{
                   translateX: drawerProgress.interpolate({
                     inputRange: [0, 1],
-                    outputRange: isRTL ? [300, 0] : [-300, 0],
+                    outputRange: [-300, 0],
                   }),
                 }],
               },
             ]}
           >
-            <View style={[styles.drawerHeader, getLayoutDirectionStyle(isRTL)]}>
+            <View style={[styles.drawerHeader, getPinnedLtrStyle()]}>
               <Text style={styles.drawerTitle}>{t('More Details')}</Text>
               <Pressable accessibilityLabel={t('Close menu')} accessibilityRole="button" onPress={closeProfileMenu} style={styles.drawerClose}>
                 <AppIcon color={colors.buttonText} name="x" size={18} />
               </Pressable>
             </View>
-            <Pressable accessibilityRole="button" onPress={() => openProfileDestination('/my-reviews')} style={[styles.drawerItem, getLayoutDirectionStyle(isRTL)]}>
+            <Pressable accessibilityRole="button" onPress={() => openProfileDestination('/my-reviews')} style={[styles.drawerItem, getPinnedLtrStyle()]}>
               <AppIcon color={colors.green} name="star" size={18} />
               <Text style={styles.drawerItemText}>{t('My Reviews')}</Text>
             </Pressable>
-            <Pressable accessibilityRole="button" onPress={() => openProfileDestination('/terms')} style={[styles.drawerItem, getLayoutDirectionStyle(isRTL)]}>
+            <Pressable accessibilityRole="button" onPress={() => openProfileDestination('/terms')} style={[styles.drawerItem, getPinnedLtrStyle()]}>
               <AppIcon color={colors.green} name="document" size={18} />
               <Text style={styles.drawerItemText}>{t('Terms & Conditions')}</Text>
             </Pressable>
-            <Pressable accessibilityRole="button" onPress={() => openProfileDestination('/privacy')} style={[styles.drawerItem, getLayoutDirectionStyle(isRTL)]}>
+            <Pressable accessibilityRole="button" onPress={() => openProfileDestination('/privacy')} style={[styles.drawerItem, getPinnedLtrStyle()]}>
               <AppIcon color={colors.green} name="badgeCheck" size={18} />
               <Text style={styles.drawerItemText}>{t('Privacy Policy')}</Text>
             </Pressable>
-            <Pressable accessibilityRole="button" onPress={() => openProfileDestination('/report')} style={[styles.drawerItem, getLayoutDirectionStyle(isRTL)]}>
+            <Pressable accessibilityRole="button" onPress={() => openProfileDestination('/report')} style={[styles.drawerItem, getPinnedLtrStyle()]}>
               <AppIcon color={colors.green} name="flag" size={18} />
               <Text style={styles.drawerItemText}>{t('Report')}</Text>
             </Pressable>
@@ -1457,7 +1457,7 @@ export function ProfileScreen({
                 closeProfileMenu();
                 onSignOut();
               }}
-              style={[styles.drawerItem, getLayoutDirectionStyle(isRTL)]}
+              style={[styles.drawerItem, getPinnedLtrStyle()]}
             >
               <AppIcon color={colors.green} name="logOut" size={18} />
               <Text style={styles.drawerItemText}>{t(demoMode ? 'Exit demo' : 'Sign out')}</Text>
@@ -1534,7 +1534,6 @@ const styles = StyleSheet.create({
   buttonDisabled: { opacity: 0.6 },
   categoryText: { color: colors.green, fontSize: 13, fontWeight: '800', marginTop: 10 },
   providerCategoryRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
-  providerCategoryRowRtl: { flexDirection: 'row-reverse' },
   providerCategoryName: { flex: 1 },
   editCategoryButton: { minWidth: 42, minHeight: 42, alignItems: 'center', justifyContent: 'center', marginTop: 8, borderRadius: 10, borderWidth: 1, borderColor: colors.green, backgroundColor: colors.green },
   locationButton: { borderWidth: 1, borderColor: colors.green, backgroundColor: colors.green, borderRadius: 12, minHeight: 40, justifyContent: 'center', alignItems: 'center', marginTop: 10 },
