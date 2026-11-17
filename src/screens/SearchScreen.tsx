@@ -28,7 +28,6 @@ import { categories, demoProviders } from '../data/demo';
 import { useLanguage } from '../context/LanguageContext';
 import { supabase } from '../lib/supabase';
 import { filterDecimalInput, filterTextInput, isValidDecimal } from '../lib/inputValidation';
-import { getLayoutDirectionStyle } from '../lib/layoutDirection';
 import { distanceKm } from '../lib/geo';
 import { formatLocalizedExperience } from '../lib/formatLocalizedExperience';
 import { colors, radius } from '../theme';
@@ -469,9 +468,9 @@ export function SearchScreen({
   }
 
   return (
-    <View style={[styles.screen, getLayoutDirectionStyle(isRTL)]}>
+    <View style={styles.screen}>
       <ScrollView
-        contentContainerStyle={[styles.content, isWideScreen && styles.contentWide, getLayoutDirectionStyle(isRTL)]}
+        contentContainerStyle={[styles.content, isWideScreen && styles.contentWide]}
         keyboardDismissMode="on-drag"
         keyboardShouldPersistTaps="handled"
       >
@@ -494,7 +493,7 @@ export function SearchScreen({
             </>
           ) : null}
         </View>
-        <View style={[styles.searchRow, isWideScreen && styles.searchRowWide, getLayoutDirectionStyle(isRTL)]}>
+        <View style={[styles.searchRow, isWideScreen && styles.searchRowWide]}>
           <View style={[styles.searchBox, isWideScreen && styles.searchBoxWide]}>
             <AppIcon color={colors.green} name="search" size={20} />
             <TextInput
@@ -521,9 +520,9 @@ export function SearchScreen({
             );
           })}
         </ScrollView>
-        <View style={[styles.filterSection, getLayoutDirectionStyle(isRTL)]}>
+        <View style={styles.filterSection}>
           <Text style={[styles.filterLabel, isRTL && styles.rtlText]}>{t('Refine your search')}</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={[styles.filters, getLayoutDirectionStyle(isRTL)]}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filters}>
           <Pressable onPress={() => setActiveOnly((current) => !current)} style={[styles.filterChip, activeOnly && styles.filterChipActive]}>
             <View style={[styles.filterDot, activeOnly && styles.filterDotActive]} />
             <Text style={[styles.filterText, activeOnly && styles.filterTextActive]}>{t('Available now')}</Text>
@@ -562,7 +561,7 @@ export function SearchScreen({
         </View>
         {locationError ? <Text accessibilityRole="alert" style={styles.error}>{locationError}</Text> : null}
 
-        <View style={[styles.sectionHeading, getLayoutDirectionStyle(isRTL)]}>
+        <View style={styles.sectionHeading}>
           <View>
             <Text style={[styles.sectionTitle, isRTL && styles.rtlText]}>{t('Top professionals')}</Text>
             <Text style={styles.sectionSubtitle}>{t('Trusted experts, ready to help')}</Text>
@@ -577,7 +576,7 @@ export function SearchScreen({
             <Text style={styles.emptyCopy}>{t('Try another category or search term.')}</Text>
           </View>
         ) : null}
-        <View style={[styles.providerGrid, getLayoutDirectionStyle(isRTL)]}>
+        <View style={styles.providerGrid}>
           {displayProviders.map((provider) => (
             <View key={provider.id} style={[styles.providerColumn, isWideScreen && styles.providerColumnWide]}>
               <ProviderCard onPress={() => openProvider(provider)} provider={provider} />
@@ -597,14 +596,14 @@ export function SearchScreen({
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={{ flex: 1 }}
           >
-          <View style={[styles.modalBackdrop, getLayoutDirectionStyle(isRTL)]}>
+          <View style={styles.modalBackdrop}>
             <View style={styles.modalCard}>
               <View style={styles.modalHandle} />
               <Pressable accessibilityLabel={t('Close provider details')} onPress={() => setSelected(null)} style={styles.closeButton}>
                 <AppIcon color={colors.buttonText} name="x" size={20} />
               </Pressable>
               <ScrollView
-                contentContainerStyle={[styles.modalScrollContent, getLayoutDirectionStyle(isRTL)]}
+                contentContainerStyle={styles.modalScrollContent}
                 keyboardDismissMode="on-drag"
                 keyboardShouldPersistTaps="handled"
                 style={styles.modalScroll}
@@ -618,7 +617,7 @@ export function SearchScreen({
                   <Text style={styles.modalName}>{selected.name}</Text>
                   {selected.isVerified ? <VerifiedBadge /> : null}
                 </View>
-                <Text style={[styles.modalMeta, isRTL && styles.rtlText]}>{t(selected.category)} · {formatLocalizedExperience(selected.experience, t('years of experience'))}</Text>
+                <Text style={[styles.modalMeta, isRTL && styles.rtlCenteredText]}>{t(selected.category)} · {formatLocalizedExperience(selected.experience, t('years of experience'))}</Text>
                 <Text style={styles.modalBio}>{selected.bio}</Text>
                 <View style={styles.modalSectionLine}>
                   <Text style={styles.modalSectionTitle}>{t('Service prices')}</Text>
@@ -741,6 +740,7 @@ const styles = StyleSheet.create({
   contentWide: { maxWidth: 1180, paddingHorizontal: 34, paddingTop: 38 },
   header: { marginBottom: 20 },
   rtlText: { textAlign: 'right' },
+  rtlCenteredText: { textAlign: 'center', writingDirection: 'rtl' },
   rtlInput: { textAlign: 'right' },
   headerWide: { marginBottom: 25 },
   greeting: { color: colors.green, fontWeight: '800', fontSize: 10, letterSpacing: 1.6 },

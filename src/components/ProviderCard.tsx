@@ -2,7 +2,6 @@ import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { AppIcon } from './AppIcon';
 import { useLanguage } from '../context/LanguageContext';
 import { colors, radius } from '../theme';
-import { getLayoutDirectionStyle } from '../lib/layoutDirection';
 import { formatLocalizedExperience } from '../lib/formatLocalizedExperience';
 import type { ProviderListing } from '../types';
 import { VerifiedBadge } from './VerifiedBadge';
@@ -20,7 +19,7 @@ export function ProviderCard({
     ?? (provider.active ? 'active' : 'inactive');
 
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [styles.card, getLayoutDirectionStyle(isRTL), pressed && styles.pressed]}>
+    <Pressable onPress={onPress} style={({ pressed }) => [styles.card, pressed && styles.pressed]}>
       <View style={styles.top}>
         <View style={styles.avatar}>
           {provider.avatarUrl
@@ -34,7 +33,7 @@ export function ProviderCard({
             )}
         </View>
         <View style={styles.details}>
-          <View style={[styles.nameLine, getLayoutDirectionStyle(isRTL)]}>
+          <View style={styles.nameLine}>
             <View style={styles.providerName}>
               <Text style={styles.name}>{provider.name}</Text>
               {provider.isVerified ? <VerifiedBadge /> : null}
@@ -48,7 +47,7 @@ export function ProviderCard({
           <Text numberOfLines={2} style={[styles.bio, isRTL && styles.rtlText]}>{provider.bio}</Text>
         </View>
       </View>
-      <View style={[styles.bottom, getLayoutDirectionStyle(isRTL)]}>
+      <View style={styles.bottom}>
         <View style={styles.distance}>
           <AppIcon color={colors.muted} name="mapPin" size={13} />
           <Text style={styles.distanceText}>{t(provider.distance)}</Text>
