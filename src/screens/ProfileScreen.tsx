@@ -832,9 +832,9 @@ export function ProfileScreen({
         keyboardShouldPersistTaps="handled"
       >
       <View style={styles.header}>
-        <Text style={[styles.eyebrow, isRTL && styles.rtlText]}>{t('YOUR ACCOUNT')}</Text>
+        <Text style={styles.eyebrow}>{t('YOUR ACCOUNT')}</Text>
         <View style={[styles.headingRow, getPinnedLtrStyle()]}>
-          <Text style={[styles.title, isRTL && styles.rtlText]}>{t('Profile')}</Text>
+          <Text style={styles.title}>{t('Profile')}</Text>
           <Pressable
             accessibilityLabel={t('More Details')}
             accessibilityRole="button"
@@ -1076,7 +1076,7 @@ export function ProfileScreen({
           ) : (
             <>
               <View style={styles.providerCategoryRow}>
-                <Text style={[styles.categoryText, styles.providerCategoryName, isRTL && styles.rtlText]}>{t(provider.category)}</Text>
+                <Text style={[styles.categoryText, styles.providerCategoryName]}>{t(provider.category)}</Text>
                 {!editingProviderCategory ? (
                   <Pressable
                     accessibilityRole="button"
@@ -1485,7 +1485,6 @@ export function ProfileScreen({
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.paper },
   content: { padding: 18, paddingBottom: 34, width: '100%', maxWidth: 720, alignSelf: 'center' },
-  rtlText: { textAlign: 'right' },
   rtlInput: { textAlign: 'right' },
   header: { marginVertical: 6 },
   headingRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
