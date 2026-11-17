@@ -523,14 +523,12 @@ export function SearchScreen({
         </ScrollView>
         <View style={styles.filterSection}>
           <Text style={[styles.filterLabel, isRTL && styles.rtlText]}>{t('Refine your search')}</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filters}>
+          <View style={styles.filters}>
           <Pressable onPress={() => setActiveOnly((current) => !current)} style={[styles.filterChip, activeOnly && styles.filterChipActive]}>
-            <View style={[styles.filterDot, activeOnly && styles.filterDotActive]} />
-            <Text style={[styles.filterText, activeOnly && styles.filterTextActive]}>{t('Available now')}</Text>
+            <Text numberOfLines={1} style={[styles.filterText, activeOnly && styles.filterTextActive]}>{t('Available now')}</Text>
           </Pressable>
           <Pressable onPress={() => setHighlyRatedOnly((current) => !current)} style={[styles.filterChip, highlyRatedOnly && styles.filterChipActive]}>
-            <AppIcon color={highlyRatedOnly ? colors.white : colors.ink} fill={highlyRatedOnly ? colors.white : colors.ink} name="star" size={14} />
-            <Text style={[styles.filterText, highlyRatedOnly && styles.filterTextActive]}>{t('Ratings 4.5+')}</Text>
+            <Text numberOfLines={1} style={[styles.filterText, highlyRatedOnly && styles.filterTextActive]}>{t('Ratings 4.5+')}</Text>
           </Pressable>
           <View style={styles.numericFilter}>
             <TextInput
@@ -558,7 +556,7 @@ export function SearchScreen({
             />
             <FieldError message={maxDistanceInvalid ? t('Distance must be greater than 0 and no more than 5000 km.') : undefined} />
           </View>
-          </ScrollView>
+          </View>
         </View>
         {locationError ? <Text accessibilityRole="alert" style={styles.error}>{locationError}</Text> : null}
 
@@ -762,16 +760,14 @@ const styles = StyleSheet.create({
   chipText: { color: colors.ink, fontSize: 12, fontWeight: '700' },
   chipTextActive: { color: colors.white },
   filterSection: { marginBottom: 24 },
-  filters: { flexDirection: 'row', alignItems: 'flex-start', gap: 9 },
-  numericFilter: { minWidth: 94, flexShrink: 0 },
-  filterChip: { flexDirection: 'row', alignItems: 'center', gap: 7, borderWidth: 1, borderColor: '#7A283F', backgroundColor: colors.white, borderRadius: 12, paddingVertical: 10, paddingHorizontal: 12 },
+  filters: { flexDirection: 'row', alignItems: 'flex-start', gap: 6 },
+  numericFilter: { flex: 1, minWidth: 0 },
+  filterChip: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#7A283F', backgroundColor: colors.white, borderRadius: 12, paddingVertical: 10, paddingHorizontal: 6 },
   filterChipActive: { backgroundColor: '#7A283F', borderColor: '#7A283F' },
-  filterDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: colors.ink },
-  filterDotActive: { backgroundColor: colors.white },
-  filterText: { color: colors.ink, fontWeight: '700', fontSize: 11 },
+  filterText: { color: colors.ink, fontWeight: '700', fontSize: 10, textAlign: 'center' },
   filterTextActive: { color: colors.white },
-  priceFilter: { minWidth: 110, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.white, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, color: colors.ink, fontSize: 11 },
-  distanceFilter: { width: 94, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.white, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, color: colors.ink, fontSize: 11 },
+  priceFilter: { width: '100%', borderWidth: 1, borderColor: colors.line, backgroundColor: colors.white, borderRadius: 12, paddingHorizontal: 8, paddingVertical: 10, color: colors.ink, fontSize: 10 },
+  distanceFilter: { width: '100%', borderWidth: 1, borderColor: colors.line, backgroundColor: colors.white, borderRadius: 12, paddingHorizontal: 8, paddingVertical: 10, color: colors.ink, fontSize: 10 },
   sectionHeading: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 3, marginBottom: 16 },
   sectionTitle: { color: colors.ink, fontSize: 19, fontWeight: '900', letterSpacing: -0.3 },
   sectionSubtitle: { color: colors.muted, fontSize: 12, marginTop: 4 },
