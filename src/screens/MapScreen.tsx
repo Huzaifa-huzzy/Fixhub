@@ -59,6 +59,38 @@ const initialRegion: Region = {
 };
 
 const nearMeRadiusKm = 10;
+const autoLocateRadiusKm = 4;
+const locationTimeoutMs = 12_000;
+
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error('location-timeout')), ms);
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (error: unknown) => {
+        clearTimeout(timer);
+        reject(error instanceof Error ? error : new Error('location-error'));
+      },
+    );
+  });
+}
+
+async function readCurrentCoordinate(): Promise<Coordinate> {
+  try {
+    const location = await withTimeout(
+      Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High }),
+      locationTimeoutMs,
+    );
+    return { latitude: location.coords.latitude, longitude: location.coords.longitude };
+  } catch (error) {
+    const lastKnown = await Location.getLastKnownPositionAsync({ maxAge: 60_000, requiredAccuracy: 100 });
+    if (lastKnown) return { latitude: lastKnown.coords.latitude, longitude: lastKnown.coords.longitude };
+    throw error;
+  }
+}
 
 function formatMapTimestamp(value: string | null | undefined, translate: (text: string) => string) {
   if (!value) return translate('Time unavailable');
@@ -174,6 +206,7 @@ export function MapScreen({ demoMode }: { demoMode: boolean }) {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const requestIdRef = useRef(0);
   const distanceLimitKmRef = useRef<number | null>(null);
+  const locatingRef = useRef(false);
   const normalizedMapSearch = mapSearch.trim().toLocaleLowerCase();
   const visibleProviders = normalizedMapSearch
     ? providers.filter((provider) => (
@@ -294,40 +327,72 @@ export function MapScreen({ demoMode }: { demoMode: boolean }) {
     }, 500);
   }
 
-  async function centerOnUser() {
+  const locateUser = useCallback(async ({ radiusKm, showFallback }: { radiusKm: number; showFallback: boolean }) => {
+    if (locatingRef.current) return;
+    locatingRef.current = true;
     setLocating(true);
     setMapError('');
-    try {
-      const permission = await Location.requestForegroundPermissionsAsync();
-      if (permission.status !== 'granted') {
-        distanceLimitKmRef.current = null;
-        setDistanceLimitKm(null);
-        setProviders([]);
-        setSelected(null);
-        setUserCoordinate(null);
-        setDeviceLocationGranted(false);
-        setLocationDenied(true);
-        setMapError(t('Enable location or search for a city to see nearby providers.'));
+
+    const moveCamera = (region: Region, attempt = 0) => {
+      if (mapRef.current) {
+        mapRef.current.animateToRegion(region, 500);
         return;
       }
-      const location = await Location.getCurrentPositionAsync({});
-      const coordinate = { latitude: location.coords.latitude, longitude: location.coords.longitude };
-      const nextRegion = regionAround(coordinate, nearMeRadiusKm);
+      if (attempt < 8) setTimeout(() => moveCamera(region, attempt + 1), 200);
+    };
+
+    try {
+      let permission = await Location.getForegroundPermissionsAsync();
+      if (permission.status !== 'granted' && permission.canAskAgain) {
+        permission = await Location.requestForegroundPermissionsAsync();
+      }
+      if (permission.status !== 'granted') {
+        setDeviceLocationGranted(false);
+        if (showFallback) {
+          distanceLimitKmRef.current = null;
+          setDistanceLimitKm(null);
+          setProviders([]);
+          setSelected(null);
+          setUserCoordinate(null);
+          setLocationDenied(true);
+          setMapError(t('Enable location or search for a city to see nearby providers.'));
+        } else {
+          setMapError(t('Allow location access to center the map on your current location.'));
+        }
+        return;
+      }
+      setLocationDenied(false);
+      setDeviceLocationGranted(true);
+
+      const servicesEnabled = await Location.hasServicesEnabledAsync();
+      if (!servicesEnabled) {
+        setDeviceLocationGranted(false);
+        setMapError(t('Turn on GPS to center the map on your current location.'));
+        return;
+      }
+
+      const coordinate = await readCurrentCoordinate();
+      const nextRegion = regionAround(coordinate, radiusKm);
       viewportRef.current = nextRegion;
       distanceLimitKmRef.current = nearMeRadiusKm;
       setDistanceLimitKm(nearMeRadiusKm);
-      setLocationDenied(false);
-      setDeviceLocationGranted(true);
       setUserCoordinate(coordinate);
       setSelected(null);
-      mapRef.current?.animateToRegion(nextRegion, 500);
+      moveCamera(nextRegion);
       await loadNearby(coordinate, nextRegion, nearMeRadiusKm);
-    } catch (error) {
-      setMapError(error instanceof Error ? error.message : t('Unable to get your location.'));
+    } catch {
+      setMapError(t('Unable to get your current location. Turn on GPS and try Near Me again.'));
     } finally {
+      locatingRef.current = false;
       setLocating(false);
     }
-  }
+  }, [loadNearby, t]);
+
+  useFocusEffect(useCallback(() => {
+    if (Platform.OS === 'web') return undefined;
+    void locateUser({ radiusKm: autoLocateRadiusKm, showFallback: false });
+    return undefined;
+  }, [locateUser]));
 
   async function searchCity() {
     const query = city.trim();
@@ -534,7 +599,7 @@ export function MapScreen({ demoMode }: { demoMode: boolean }) {
         accessibilityLabel={t('Find providers near me')}
         accessibilityRole="button"
         disabled={locating}
-        onPress={() => void centerOnUser()}
+        onPress={() => void locateUser({ radiusKm: nearMeRadiusKm, showFallback: true })}
         style={[styles.nearMeButton, { bottom: safeAreaBottom + 24 }]}
       >
         {locating

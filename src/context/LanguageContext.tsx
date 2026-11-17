@@ -520,6 +520,9 @@ const urduTranslations: Record<string, string> = {
   'Could not load chats.': 'چیٹس حاصل نہیں ہو سکیں۔',
   'Connect an account to contact this provider.': 'اس کام کرنے والے سے رابطے کے لیے اکاؤنٹ میں جائیں۔',
   'Unable to get your current location.': 'آپ کا موجودہ مقام معلوم نہیں ہو سکا۔',
+  'Allow location access to center the map on your current location.': 'نقشے کو آپ کی موجودہ جگہ پر لانے کے لیے جگہ کی اجازت دیں۔',
+  'Turn on GPS to center the map on your current location.': 'نقشے کو آپ کی موجودہ جگہ پر لانے کے لیے جی پی ایس چلائیں۔',
+  'Unable to get your current location. Turn on GPS and try Near Me again.': 'آپ کا موجودہ مقام معلوم نہیں ہو سکا۔ جی پی ایس چلا کر میرے قریب دوبارہ دبائیں۔',
 };
 
 type LanguageContextValue = {
