@@ -24,7 +24,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { demoProviders } from '../data/demo';
 import { supabase } from '../lib/supabase';
 import { colors, radius } from '../theme';
-import { getLayoutDirectionStyle } from '../lib/layoutDirection';
+import { getPinnedLtrStyle } from '../lib/layoutDirection';
 import { distanceKm, type Coordinate } from '../lib/geo';
 import { formatLocalizedExperience } from '../lib/formatLocalizedExperience';
 import { VerifiedBadge } from '../components/VerifiedBadge';
@@ -413,7 +413,7 @@ export function MapScreen({ demoMode }: { demoMode: boolean }) {
 
   if (Platform.OS === 'web') {
     return (
-      <View style={[styles.webScreen, getLayoutDirectionStyle(isRTL)]}>
+      <View style={[styles.webScreen, getPinnedLtrStyle()]}>
         <AppIcon color={colors.ink} name="mapPin" size={40} />
         <Text style={styles.webTitle}>{t('Map view is available on mobile')}</Text>
         <Text style={styles.webCopy}>{t('Open this Expo project on iOS or Android to explore nearby providers on the map.')}</Text>
@@ -453,7 +453,7 @@ export function MapScreen({ demoMode }: { demoMode: boolean }) {
   }
 
   return (
-    <View style={styles.screen}>
+    <View style={[styles.screen, getPinnedLtrStyle()]}>
       <ClusteredMapView
         clusterColor={colors.ink}
         clusterTextColor={colors.white}
@@ -480,9 +480,9 @@ export function MapScreen({ demoMode }: { demoMode: boolean }) {
         ))}
       </ClusteredMapView>
 
-      <View style={[styles.topBadge, { top: 12 }, isRTL && styles.topBadgeRtl]}>
-        <Text style={styles.topBadgeTitle}>{t('NEARBY PROFESSIONALS')}</Text>
-        <Text style={styles.topBadgeSubtext}>
+      <View style={[styles.topBadge, { top: 12 }]}>
+        <Text style={[styles.topBadgeTitle, isRTL && styles.rtlText]}>{t('NEARBY PROFESSIONALS')}</Text>
+        <Text style={[styles.topBadgeSubtext, isRTL && styles.rtlText]}>
           {userCoordinate
             ? `${visibleProviders.length} ${t(distanceLimitKm === nearMeRadiusKm
               ? 'verified providers within 10 km'
@@ -490,7 +490,7 @@ export function MapScreen({ demoMode }: { demoMode: boolean }) {
             : t('Tap Near Me to show verified providers in this map area')}
         </Text>
       </View>
-      <View style={[styles.mapSearch, { top: 84 }, getLayoutDirectionStyle(isRTL)]}>
+      <View style={[styles.mapSearch, { top: 84 }, getPinnedLtrStyle()]}>
         <AppIcon color={colors.muted} name="search" size={20} />
         <TextInput
           accessibilityLabel={t('Search providers by category')}
@@ -535,7 +535,7 @@ export function MapScreen({ demoMode }: { demoMode: boolean }) {
         accessibilityRole="button"
         disabled={locating}
         onPress={() => void centerOnUser()}
-        style={[styles.nearMeButton, { bottom: safeAreaBottom + 24 }, isRTL && styles.nearMeButtonRtl]}
+        style={[styles.nearMeButton, { bottom: safeAreaBottom + 24 }]}
       >
         {locating
           ? <ActivityIndicator color={colors.buttonText} />
@@ -581,11 +581,11 @@ export function MapScreen({ demoMode }: { demoMode: boolean }) {
       ) : null}
 
       {selected ? (
-        <View style={[styles.providerCard, getLayoutDirectionStyle(isRTL)]}>
+        <View style={[styles.providerCard, getPinnedLtrStyle()]}>
           <Pressable
             accessibilityLabel={t('Close selected provider')}
             onPress={() => setSelected(null)}
-            style={[styles.dismiss, isRTL && styles.dismissRtl]}
+            style={styles.dismiss}
           >
             <AppIcon color={colors.buttonText} name="x" size={20} />
           </Pressable>
@@ -598,10 +598,10 @@ export function MapScreen({ demoMode }: { demoMode: boolean }) {
               </View>
               <View style={styles.providerCopy}>
                 <View style={styles.mapNameRow}>
-                  <Text style={styles.providerName}>{selected.name}</Text>
+                  <Text style={[styles.providerName, isRTL && styles.rtlText]}>{selected.name}</Text>
                   {selected.isVerified ? <VerifiedBadge /> : null}
                 </View>
-                <Text style={styles.providerMeta}>{t(selected.category)}</Text>
+                <Text style={[styles.providerMeta, isRTL && styles.rtlText]}>{t(selected.category)}</Text>
                 <View style={styles.providerRating}>
                   <AppIcon color={colors.greenDark} fill={colors.greenDark} name="star" size={12} />
                   <Text style={styles.providerRatingText}>
@@ -611,27 +611,27 @@ export function MapScreen({ demoMode }: { demoMode: boolean }) {
                 </View>
               </View>
             </View>
-            <Text style={styles.providerDistance}>{selected.distance}</Text>
-            <Text style={styles.providerAvailability}>
+            <Text style={[styles.providerDistance, isRTL && styles.rtlText]}>{selected.distance}</Text>
+            <Text style={[styles.providerAvailability, isRTL && styles.rtlText]}>
               {t('Service availability:')} {t(selected.availabilityStatus === 'busy' ? 'Busy' : 'Available')}
             </Text>
-            <Text style={[styles.providerConnectivity, !selected.isOnline && styles.providerOffline]}>
+            <Text style={[styles.providerConnectivity, !selected.isOnline && styles.providerOffline, isRTL && styles.rtlText]}>
               {t(selected.isOnline ? 'Online' : 'Offline')}
               {selected.lastSeenAt
                 ? ` · ${t('Last seen')}: ${formatMapTimestamp(selected.lastSeenAt, t)}`
                 : ` · ${t('No online update yet')}`}
             </Text>
-            <Text style={styles.providerLocationTimestamp}>
+            <Text style={[styles.providerLocationTimestamp, isRTL && styles.rtlText]}>
               {t('Location last updated')}: {formatMapTimestamp(selected.locationUpdatedAt, t)}
             </Text>
-            <Text style={styles.providerBio}>{selected.bio || t('No introduction provided.')}</Text>
-            <Text style={styles.providerDetails}>
+            <Text style={[styles.providerBio, isRTL && styles.rtlText]}>{selected.bio || t('No introduction provided.')}</Text>
+            <Text style={[styles.providerDetails, isRTL && styles.rtlText]}>
               {formatLocalizedExperience(selected.experience, t('years of experience'))}
             </Text>
-            <Text style={styles.serviceHeading}>{t('Services and prices')}</Text>
+            <Text style={[styles.serviceHeading, isRTL && styles.rtlText]}>{t('Services and prices')}</Text>
             {selected.services.length ? selected.services.map((service) => (
               <View key={service.name} style={styles.serviceRow}>
-                <Text style={styles.serviceName}>{service.name}</Text>
+                <Text style={[styles.serviceName, isRTL && styles.rtlText]}>{service.name}</Text>
                 <Text style={styles.servicePrice}>
                   {service.startingFrom ? `${t('From')} ` : ''}Rs. {service.price.toLocaleString()}
                   {service.negotiable ? ` · ${t('Negotiable')}` : ''}
@@ -656,11 +656,11 @@ export function MapScreen({ demoMode }: { demoMode: boolean }) {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: '#F5F5F5' },
   topBadge: { position: 'absolute', left: 16, maxWidth: '80%', backgroundColor: colors.white, borderRadius: 15, paddingHorizontal: 14, paddingVertical: 11, shadowColor: '#000000', shadowOpacity: 0.1, shadowRadius: 8, elevation: 3 },
-  topBadgeRtl: { left: undefined, right: 16, alignItems: 'flex-end' },
   topBadgeTitle: { color: colors.ink, fontWeight: '900', letterSpacing: 1, fontSize: 9 },
   topBadgeSubtext: { color: colors.muted, fontSize: 10, marginTop: 4 },
   mapSearch: { position: 'absolute', left: 16, right: 16, minHeight: 46, backgroundColor: colors.white, borderRadius: 14, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center', elevation: 4, shadowColor: '#000000', shadowOpacity: 0.1, shadowRadius: 7, shadowOffset: { width: 0, height: 2 } },
   mapSearchInput: { flex: 1, minHeight: 46, color: colors.ink, fontSize: 13, paddingVertical: 0 },
+  rtlText: { textAlign: 'right' },
   rtlInput: { textAlign: 'right' },
   clearMapSearch: { width: 32, height: 36, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.green, borderRadius: 9 },
   clearMapSearchText: { color: colors.muted, fontSize: 23, lineHeight: 26 },
@@ -669,7 +669,6 @@ const styles = StyleSheet.create({
   emptyProviders: { position: 'absolute', left: 18, right: 18, backgroundColor: colors.white, borderRadius: 13, padding: 13, elevation: 3 },
   emptyProvidersText: { color: colors.muted, fontSize: 11, lineHeight: 16, textAlign: 'center' },
   nearMeButton: { position: 'absolute', right: 16, minHeight: 50, backgroundColor: colors.green, borderRadius: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 17, elevation: 5, shadowColor: '#000000', shadowOpacity: 0.2, shadowRadius: 8, shadowOffset: { width: 0, height: 3 } },
-  nearMeButtonRtl: { right: undefined, left: 16 },
   nearMeContent: { flexDirection: 'row', alignItems: 'center', gap: 7 },
   nearMeText: { color: colors.buttonText, fontSize: 12, fontWeight: '800' },
   locationFallback: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, backgroundColor: colors.white, padding: 24, justifyContent: 'center', elevation: 8 },
@@ -694,7 +693,6 @@ const styles = StyleSheet.create({
   providerCard: { position: 'absolute', left: 12, right: 12, bottom: 12, maxHeight: '65%', backgroundColor: colors.white, paddingHorizontal: 16, paddingTop: 24, paddingBottom: 8, borderRadius: radius.card, elevation: 8, shadowColor: '#000000', shadowOpacity: 0.16, shadowRadius: 10, shadowOffset: { width: 0, height: 3 } },
   detailScroll: { paddingBottom: 10 },
   dismiss: { position: 'absolute', right: 10, top: 6, zIndex: 2, width: 32, height: 32, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.green, borderRadius: 9 },
-  dismissRtl: { right: undefined, left: 10 },
   providerHeader: { flexDirection: 'row', alignItems: 'center', paddingRight: 20 },
   detailAvatar: { width: 64, height: 64, borderRadius: 21, backgroundColor: colors.mint, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   detailAvatarImage: { width: '100%', height: '100%' },
