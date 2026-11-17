@@ -515,6 +515,9 @@ const urduTranslations: Record<string, string> = {
   Carpenter: 'بڑھئی',
   Painter: 'رنگ کرنے کا کام',
   'AC Repair': 'اے سی کا کام',
+  Chat: 'چیٹ کریں',
+  'Connect an account to contact this provider.': 'اس کام کرنے والے سے رابطے کے لیے اکاؤنٹ میں جائیں۔',
+  'Unable to get your current location.': 'آپ کا موجودہ مقام معلوم نہیں ہو سکا۔',
 };
 
 type LanguageContextValue = {

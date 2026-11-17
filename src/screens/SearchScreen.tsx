@@ -29,6 +29,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { supabase } from '../lib/supabase';
 import { filterDecimalInput, filterTextInput, isValidDecimal } from '../lib/inputValidation';
 import { getLayoutDirectionStyle } from '../lib/layoutDirection';
+import { distanceKm } from '../lib/geo';
 import { formatLocalizedExperience } from '../lib/formatLocalizedExperience';
 import { colors, radius } from '../theme';
 import type { ProviderListing } from '../types';
@@ -46,20 +47,6 @@ type ProviderReview = {
   comment: string | null;
   createdAt: string;
 };
-
-function distanceKm(
-  latitude: number,
-  longitude: number,
-  targetLatitude: number,
-  targetLongitude: number,
-) {
-  const radians = (value: number) => value * (Math.PI / 180);
-  const latDelta = radians(targetLatitude - latitude);
-  const lngDelta = radians(targetLongitude - longitude);
-  const a = Math.sin(latDelta / 2) ** 2
-    + Math.cos(radians(latitude)) * Math.cos(radians(targetLatitude)) * Math.sin(lngDelta / 2) ** 2;
-  return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}
 
 function aggregateRatings(rows: { to_profile_id: string; rating: number }[]) {
   const grouped = new Map<string, { total: number; count: number }>();
@@ -332,7 +319,7 @@ export function SearchScreen({
         && provider.services.some((service) => service.price <= priceLimit));
     const distanceLimit = Number(maxDistance);
     const providerDistance = userLocation && provider.latitude != null && provider.longitude != null
-      ? distanceKm(userLocation.latitude, userLocation.longitude, provider.latitude, provider.longitude)
+      ? distanceKm(userLocation, { latitude: provider.latitude, longitude: provider.longitude })
       : Number.parseFloat(provider.distance);
     const matchesDistance = !maxDistance.trim()
       || (Number.isFinite(distanceLimit) && distanceLimit > 0
@@ -345,7 +332,7 @@ export function SearchScreen({
 
   const displayProviders = visibleProviders.map((provider) => {
     const distance = userLocation && provider.latitude != null && provider.longitude != null
-      ? distanceKm(userLocation.latitude, userLocation.longitude, provider.latitude, provider.longitude)
+      ? distanceKm(userLocation, { latitude: provider.latitude, longitude: provider.longitude })
       : Number.parseFloat(provider.distance);
     return Number.isFinite(distance)
       ? { ...provider, distance: `${distance.toFixed(1)} km` }

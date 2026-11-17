@@ -474,8 +474,17 @@ export function AppSessionProvider({ children }: PropsWithChildren) {
     return () => subscription.remove();
   }, [loadProfile, session]);
 
+  const loadedProfileToken = useRef<string | null>(null);
+
   useEffect(() => {
-    if (!session) return;
+    if (!session) {
+      loadedProfileToken.current = null;
+      return;
+    }
+    // Supabase emits the session twice on startup (initial auth event plus getSession),
+    // so the same token would otherwise fetch the profile twice; loadProfile() handles refreshes.
+    if (loadedProfileToken.current === session.access_token) return;
+    loadedProfileToken.current = session.access_token;
     let active = true;
     void fetchProfile(session.user.id).then((result) => {
       if (!active) return;

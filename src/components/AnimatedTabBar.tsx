@@ -24,6 +24,9 @@ const tabs = [
 ] satisfies { name: string; label: string; icon: AppIconName; href: `/(tabs)/${string}` }[];
 
 const highlightHeight = 48;
+
+// `direction` is a valid Yoga style on native but react-native-web rejects it in the console.
+const ltrOnly = Platform.OS === 'web' ? undefined : { direction: 'ltr' as const };
 const holdDuration = 280;
 
 export function AnimatedTabBar() {
@@ -260,7 +263,7 @@ const styles = StyleSheet.create({
   row: {
     height: 58,
     flexDirection: 'row',
-    direction: 'ltr',
+    ...ltrOnly,
     alignItems: 'center',
     position: 'relative',
   },

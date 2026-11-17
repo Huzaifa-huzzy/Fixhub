@@ -25,11 +25,11 @@ import { demoProviders } from '../data/demo';
 import { supabase } from '../lib/supabase';
 import { colors, radius } from '../theme';
 import { getLayoutDirectionStyle } from '../lib/layoutDirection';
+import { distanceKm, type Coordinate } from '../lib/geo';
 import { formatLocalizedExperience } from '../lib/formatLocalizedExperience';
 import { VerifiedBadge } from '../components/VerifiedBadge';
 import type { ProviderListing } from '../types';
 
-type Coordinate = { latitude: number; longitude: number };
 type MapCamera = Pick<MapView, 'animateToRegion'>;
 type NearbyProviderRow = {
   provider_profile_id: string;
@@ -78,16 +78,6 @@ const demoCoordinates: Record<string, Coordinate> = {
   'demo-2': { latitude: 31.526, longitude: 74.342 },
   'demo-3': { latitude: 31.501, longitude: 74.368 },
 };
-
-function distanceKm(from: Coordinate, to: Coordinate) {
-  const radians = (value: number) => value * (Math.PI / 180);
-  const latitudeDelta = radians(to.latitude - from.latitude);
-  const longitudeDelta = radians(to.longitude - from.longitude);
-  const a = Math.sin(latitudeDelta / 2) ** 2
-    + Math.cos(radians(from.latitude)) * Math.cos(radians(to.latitude))
-    * Math.sin(longitudeDelta / 2) ** 2;
-  return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}
 
 function regionAround(coordinate: Coordinate, radiusKm: number): Region {
   const latitudeDelta = (radiusKm * 2) / 110.574;

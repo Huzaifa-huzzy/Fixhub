@@ -45,9 +45,3 @@ export type ProviderListing = {
   longitude?: number | null;
   services: { name: string; price: number; startingFrom?: boolean; negotiable?: boolean }[];
 };
-
-export type RootTabParamList = {
-  Search: undefined;
-  Map: undefined;
-  Profile: undefined;
-};
