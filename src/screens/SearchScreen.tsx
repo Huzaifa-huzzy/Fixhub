@@ -29,6 +29,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { supabase } from '../lib/supabase';
 import { filterDecimalInput, filterTextInput, isValidDecimal } from '../lib/inputValidation';
 import { distanceKm } from '../lib/geo';
+import { getPinnedLtrStyle } from '../lib/layoutDirection';
 import { formatLocalizedExperience } from '../lib/formatLocalizedExperience';
 import { colors, radius } from '../theme';
 import type { ProviderListing } from '../types';
@@ -468,7 +469,7 @@ export function SearchScreen({
   }
 
   return (
-    <View style={styles.screen}>
+    <View style={[styles.screen, getPinnedLtrStyle()]}>
       <ScrollView
         contentContainerStyle={[styles.content, isWideScreen && styles.contentWide]}
         keyboardDismissMode="on-drag"
@@ -596,7 +597,7 @@ export function SearchScreen({
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={{ flex: 1 }}
           >
-          <View style={styles.modalBackdrop}>
+          <View style={[styles.modalBackdrop, getPinnedLtrStyle()]}>
             <View style={styles.modalCard}>
               <View style={styles.modalHandle} />
               <Pressable accessibilityLabel={t('Close provider details')} onPress={() => setSelected(null)} style={styles.closeButton}>
