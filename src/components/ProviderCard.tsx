@@ -43,7 +43,8 @@ export function ProviderCard({
               <Text style={styles.ratingText}>{provider.rating}</Text>
             </View>
           </View>
-          <Text style={[styles.category, isRTL && styles.rtlText]}>{t(provider.category)} · {formatLocalizedExperience(provider.experience, t('years of experience'))}</Text>
+          {/* Left-aligned in both languages so the experience number keeps its English position. */}
+          <Text style={styles.category}>{t(provider.category)} · {formatLocalizedExperience(provider.experience, t('years of experience'))}</Text>
           <Text numberOfLines={2} style={[styles.bio, isRTL && styles.rtlText]}>{provider.bio}</Text>
         </View>
       </View>
