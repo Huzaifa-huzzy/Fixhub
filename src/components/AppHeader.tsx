@@ -17,7 +17,7 @@ export function AppHeader() {
         <View style={styles.brand}>
           <Image
             accessibilityLabel="Fixhub logo"
-            source={require('../../assets/Gemini_Generated_Image_f2lm3nf2lm3nf2lm.jpg')}
+            source={require('../../assets/Maroon House Repair Badge.png')}
             style={styles.logo}
           />
           <Text style={styles.title}>

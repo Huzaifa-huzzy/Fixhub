@@ -6,7 +6,7 @@
     "description": "Discover and connect with trusted local service professionals.",
     "version": "1.0.0",
     "orientation": "portrait",
-          "icon": "./assets/icon.png",
+          "icon": "./assets/app-icon.png",
     "userInterfaceStyle": "light",
     "ios": {
       "bundleIdentifier": "com.serviceconnect.app",
@@ -17,7 +17,7 @@
       "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {
         "backgroundColor": "#FFFFFF",
-        "foregroundImage": "./assets/icon.png"
+        "foregroundImage": "./assets/app-icon-foreground.png"
       },
       "predictiveBackGestureEnabled": false
     },
@@ -30,7 +30,7 @@
         "expo-splash-screen",
         {
           "backgroundColor": "#FFFFFF",
-          "image": "./assets/icon.jpg",
+          "image": "./assets/app-icon.png",
           "imageWidth": 240,
           "resizeMode": "contain"
         }

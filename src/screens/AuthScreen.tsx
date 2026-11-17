@@ -374,7 +374,7 @@ export function AuthScreen({
         >
           <Text style={styles.languageButtonText}>{language === 'en' ? 'اردو' : 'English'}</Text>
         </Pressable>
-        <Image accessibilityLabel="Fixhub logo" source={require('../../assets/Gemini_Generated_Image_f2lm3nf2lm3nf2lm.jpg')} style={styles.brandImage} />
+        <Image accessibilityLabel="Fixhub logo" source={require('../../assets/Maroon House Repair Badge.png')} style={styles.brandImage} />
         <Text style={[styles.brand, isRTL && styles.rtlText]}>
           <Text style={styles.fixBrand}>Fix</Text>
           <Text style={styles.hubBrand}>hub</Text>
